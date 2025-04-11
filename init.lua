@@ -84,6 +84,8 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+---@diagnostic disable: missing-fields
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -156,6 +158,7 @@ vim.opt.fillchars = { eob = ' ' }
 -- Set tab width to 4 spaces
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
+vim.opt.expandtab = true
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -215,6 +218,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- Add htmlangular as filetype
 vim.cmd 'runtime! ftplugin/html.vim!'
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  desc = 'Set commentstring of htmlangular',
+  pattern = '*.component.html',
+  command = 'setlocal commentstring=<!--\\ %s\\ -->',
+})
+
+-- Add css keywords to html
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'html,htmlangular,css',
+  command = 'setlocal iskeyword+=-',
+})
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -251,9 +265,12 @@ require('lazy').setup({
     dependencies = { 'nvim-tree/nvim-web-devicons' }, -- use if you prefer nvim-web-devicons
     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
     lazy = false,
-    opts = {},
     config = function()
-      require('oil').setup()
+      require('oil').setup {
+        view_options = {
+          show_hidden = true,
+        },
+      }
       vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory with Oil' })
     end,
   },
@@ -292,15 +309,15 @@ require('lazy').setup({
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'
 
-        vim.keymap.set('n', '<leader>gbl', gitsigns.blame_line, { desc = 'Show [G]it [b]lame [l]ine' })
+        vim.keymap.set('n', '<leader>gll', gitsigns.blame_line, { desc = 'Show [G]it b[l]ame [l]ine' })
 
-        vim.keymap.set('n', '<leader>gbf', function()
+        vim.keymap.set('n', '<leader>glf', function()
           gitsigns.blame_line { full = true }
-        end, { desc = 'Show [G]it [b]lame line [f]ull' })
+        end, { desc = 'Show [G]it b[l]ame line [f]ull' })
 
-        vim.keymap.set('n', '<leader>gbb', function()
+        vim.keymap.set('n', '<leader>glb', function()
           gitsigns.blame()
-        end, { desc = 'Open [G]it [b]lame in split' })
+        end, { desc = 'Open [G]it b[l]ame in split' })
       end,
     },
   },
@@ -366,13 +383,13 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d', group = '[D]ebugger' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
-        { '<leader>gb', group = '[B]lame', mode = { 'n', 'v' } },
+        { '<leader>gl', group = 'b[l]ame', mode = { 'n', 'v' } },
       },
     },
   },
@@ -407,6 +424,7 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'local/project-config' },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -433,12 +451,18 @@ require('lazy').setup({
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            n = {
+              ['<c-d>'] = require('telescope.actions').delete_buffer,
+            },
+            i = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              ['<C-h>'] = 'which_key',
+              ['<c-d>'] = require('telescope.actions').delete_buffer,
+            },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -455,14 +479,21 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+      vim.keymap.set('n', '<leader>sf', function()
+        builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden' } }
+      end, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader><leader>', function()
+        builtin.buffers { sort_mru = true }
+      end, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[G]it [B]ranches' })
+      vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = '[G]it [C]ommits' })
+      vim.keymap.set('n', '<leader>gs', builtin.git_stash, { desc = '[G]it [S]tash' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -486,7 +517,20 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      vim.keymap.set('n', '<leader>wl', require('project-config').show_list, { desc = '[W]orkspace [L]ist' })
     end,
+  },
+
+  {
+    'local/betterf.nvim',
+    opts = {
+      color = '#A5E2FF',
+      mappings = {
+        '<leader>f',
+        '<leader>F',
+      },
+    },
   },
 
   -- LSP Plugins
@@ -509,7 +553,9 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'williamboman/mason.nvim', opts = {} },
+      { 'williamboman/mason.nvim', opts = {
+        ensure_installed = { 'csharpier', 'netcoredbg' },
+      } },
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -518,6 +564,8 @@ require('lazy').setup({
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
+      -- Gather all diagnostics in workspace
+      'artemave/workspace-diagnostics.nvim',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -562,30 +610,32 @@ require('lazy').setup({
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
+          local builtin = require 'telescope.builtin'
+
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', builtin.lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gr', builtin.lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gI', builtin.lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          map('<leader>D', builtin.lsp_type_definitions, 'Type [D]efinition')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>ss', builtin.lsp_document_symbols, '[S]earch Document [S]ymbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('<leader>ws', builtin.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
@@ -647,7 +697,10 @@ require('lazy').setup({
         for type, icon in pairs(signs) do
           diagnostic_signs[vim.diagnostic.severity[type]] = icon
         end
-        vim.diagnostic.config { signs = { text = diagnostic_signs } }
+        vim.diagnostic.config {
+          signs = { text = diagnostic_signs },
+          float = { border = 'rounded' },
+        }
       end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
@@ -712,6 +765,11 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         html = {
           capabilities = { textDocument = { completion = { completionItem = { snippetSupport = true } } } },
+          filetypes = { 'html', 'htmlangular' },
+        },
+        cssls = {
+          capabilities = { textDocument = { completion = { completionItem = { snippetSupport = true } } } },
+          filetypes = { 'css', 'scss', 'less', 'html', 'htmlangular' },
         },
         ts_ls = {
           settings = {
@@ -740,9 +798,19 @@ require('lazy').setup({
               },
             },
           },
+          on_attach = function(client, bufnr)
+            -- ts_ls does not automatically gather all workspace diagnostics
+            require('workspace-diagnostics').populate_workspace_diagnostics(client, bufnr)
+          end,
         },
         angularls = {
-          filetypes = { 'typescript', 'html', 'htmlangular' },
+          filetypes = { 'typescript', 'htmlangular' },
+        },
+        eslint = {
+          flags = {
+            allow_incremental_sync = false,
+            debounce_text_changes = 1000,
+          },
         },
 
         lua_ls = {
@@ -751,6 +819,7 @@ require('lazy').setup({
           -- capabilities = {},
           settings = {
             Lua = {
+              indent_style = 'space',
               completion = {
                 callSnippet = 'Replace',
               },
@@ -761,6 +830,24 @@ require('lazy').setup({
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+        },
+
+        omnisharp = {
+          handlers = {
+            ['textDocument/definition'] = function(...)
+              return require('omnisharp_extended').handler(...)
+            end,
+          },
+          keys = {
+            {
+              'gd',
+              require('omnisharp_extended').telescope_lsp_definitions,
+              desc = 'Goto Definition',
+            },
+          },
+          enable_roslyn_analyzers = true,
+          organize_imports_on_format = true,
+          enable_import_completion = true,
         },
       }
 
@@ -801,6 +888,9 @@ require('lazy').setup({
       }
     end,
   },
+
+  { 'Hoffs/omnisharp-extended-lsp.nvim', lazy = true },
+
   {
     'MysticalDevil/inlay-hints.nvim',
     event = 'LspAttach',
@@ -818,12 +908,12 @@ require('lazy').setup({
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>cf',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
         mode = '',
-        desc = '[F]ormat buffer',
+        desc = '[C]ode: [F]ormat buffer',
       },
     },
     opts = {
@@ -849,8 +939,12 @@ require('lazy').setup({
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
+        rust = { 'rustfmt' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
+        htmlangular = { 'prettier' },
       },
     },
   },
@@ -890,6 +984,7 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       -- See `:help cmp`
@@ -971,6 +1066,11 @@ require('lazy').setup({
           },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
+          { name = 'buffer', option = {
+            get_bufnrs = function()
+              return vim.api.nvim_list_bufs()
+            end,
+          } },
           { name = 'path' },
         },
       }
@@ -988,9 +1088,8 @@ require('lazy').setup({
     'local/darcula',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     lazy = false,
-    opts = {},
-    config = function(_, opts)
-      require('darcula').setup(opts)
+    config = function()
+      require('darcula').setup()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
@@ -1005,7 +1104,27 @@ require('lazy').setup({
       require('lualine').setup {
         options = {
           theme = require('darcula').lualine,
+          component_separators = '',
+          section_separators = { left = '', right = '' },
         },
+        sections = {
+          lualine_a = { { 'mode', separator = { left = ' ', right = '' }, right_padding = 2 } },
+          lualine_b = { 'branch', 'filename', 'diff' },
+          lualine_c = { 'diagnostics', 'searchcount', '%=' },
+          lualine_x = { 'encoding', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { { 'location', separator = { left = '', right = ' ' }, left_padding = 2 } },
+        },
+        inactive_sections = {
+          lualine_a = { 'filename' },
+          lualine_b = {},
+          lualine_c = {},
+          lualine_x = {},
+          lualine_y = {},
+          lualine_z = { 'location' },
+        },
+        tabline = {},
+        extensions = {},
       }
     end,
   },
@@ -1018,7 +1137,25 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
+
+  -- Process `.nvim.lua` for each project
+  {
+    'klen/nvim-config-local',
+    opts = {
+      config_files = { '.nvim.lua' },
+      hashfile = vim.fn.stdpath 'data' .. '/config-local',
+      autocommands_create = true, -- Create autocommands (VimEnter, DirectoryChanged)
+      commands_create = true, -- Create commands (ConfigLocalSource, ConfigLocalEdit, ConfigLocalTrust, ConfigLocalDeny)
+      silent = false, -- Disable plugin messages (Config loaded/denied)
+      lookup_parents = true, -- Lookup config files in parent directories
+    },
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1063,7 +1200,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1081,6 +1218,20 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+
+  {
+    'windwp/nvim-ts-autotag',
+    opts = {
+      opts = {
+        enable_close = true, -- Auto close tags
+        enable_rename = true, -- Auto rename pairs of tags
+        enable_close_on_slash = false, -- Auto close on trailing </
+      },
+      aliases = {
+        ['htmlangular'] = 'html',
+      },
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1103,8 +1254,8 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
-  --
+  { import = 'custom.plugins' },
+
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
@@ -1131,7 +1282,7 @@ require('lazy').setup({
   },
   dev = {
     path = '~/Projects/nvim',
-    patterns = { 'local' },
+    patterns = { 'local/' },
     fallback = false,
   },
 })
