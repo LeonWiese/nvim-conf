@@ -553,10 +553,14 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'williamboman/mason.nvim', opts = {
-        ensure_installed = { 'csharpier', 'netcoredbg' },
-      } },
-      'williamboman/mason-lspconfig.nvim',
+      {
+        'williamboman/mason.nvim',
+        version = '1.11.0',
+        opts = {
+          ensure_installed = { 'csharpier', 'netcoredbg' },
+        },
+      },
+      { 'williamboman/mason-lspconfig.nvim', version = '1.32.0' },
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
@@ -566,6 +570,9 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
       -- Gather all diagnostics in workspace
       'artemave/workspace-diagnostics.nvim',
+
+      -- Diverse json schemas
+      'b0o/SchemaStore.nvim',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -720,9 +727,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
+        clangd = {},
+        gopls = {},
+        pyright = {},
         rust_analyzer = {
           inlayHints = {
             bindingModeHints = {
@@ -810,6 +817,24 @@ require('lazy').setup({
           flags = {
             allow_incremental_sync = false,
             debounce_text_changes = 1000,
+          },
+        },
+
+        jsonls = {
+          settings = {
+            json = {
+              schemas = require('schemastore').json.schemas(),
+              validate = { enable = true },
+            },
+          },
+        },
+
+        yamlls = {
+          settings = {
+            yaml = {
+              schemaStore = { enable = false, url = '' },
+              schemas = require('schemastore').yaml.schemas(),
+            },
           },
         },
 
@@ -985,12 +1010,20 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-buffer',
+
+      -- NPM package completion
+      {
+        'David-Kunz/cmp-npm',
+        dependencies = { 'nvim-lua/plenary.nvim' },
+        ft = 'json',
+      },
     },
     config = function()
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
       luasnip.config.setup {}
+      require('cmp-npm').setup {}
 
       cmp.setup {
         snippet = {
@@ -1072,6 +1105,7 @@ require('lazy').setup({
             end,
           } },
           { name = 'path' },
+          { name = 'npm' },
         },
       }
     end,
@@ -1200,7 +1234,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp', 'http' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
