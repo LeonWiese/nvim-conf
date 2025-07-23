@@ -154,11 +154,23 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Remove ~ as end of buffer
 vim.opt.fillchars = { eob = ' ' }
+vim.opt.fillchars:append 'diff:╱'
 
 -- Set tab width to 4 spaces
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
+
+-- Change behaviour of git diffs
+vim.opt.diffopt = {
+  'internal',
+  'filler',
+  'closeoff',
+  'algorithm:histogram',
+  'indent-heuristic',
+  'linematch:60',
+  -- 'inline:word', -- or "inline:char"
+}
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -336,6 +348,13 @@ require('lazy').setup({
 
         vim.keymap.set('v', '<leader>gh', gitsigns.select_hunk, { desc = 'Select [G]it [H]unk' })
       end,
+    },
+  },
+
+  {
+    'sindrets/diffview.nvim',
+    opts = {
+      enhanced_diff_hl = true,
     },
   },
 
