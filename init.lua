@@ -309,15 +309,32 @@ require('lazy').setup({
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'
 
-        vim.keymap.set('n', '<leader>gll', gitsigns.blame_line, { desc = 'Show [G]it b[l]ame [l]ine' })
-
-        vim.keymap.set('n', '<leader>glf', function()
+        vim.keymap.set('n', '<leader>gbl', gitsigns.blame_line, { desc = 'Show [G]it [b]lame [l]ine' })
+        vim.keymap.set('n', '<leader>gbf', function()
           gitsigns.blame_line { full = true }
-        end, { desc = 'Show [G]it b[l]ame line [f]ull' })
+        end, { desc = 'Show [G]it [b]lame line [f]ull' })
+        vim.keymap.set('n', '<leader>gbs', gitsigns.blame, { desc = 'Open [G]it [b]lame in [s]plit' })
 
-        vim.keymap.set('n', '<leader>glb', function()
-          gitsigns.blame()
-        end, { desc = 'Open [G]it b[l]ame in split' })
+        vim.keymap.set('n', '<leader>grb', gitsigns.reset_buffer, { desc = '[G]it [r]eset [b]uffer' })
+        vim.keymap.set('n', '<leader>grh', gitsigns.reset_hunk, { desc = '[G]it [r]eset [h]unk' })
+        vim.keymap.set('v', '<leader>gr', function()
+          gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = '[G]it [r]eset selection' })
+
+        vim.keymap.set('n', '<leader>gsb', gitsigns.stage_buffer, { desc = '[G]it [r]eset [b]uffer' })
+        vim.keymap.set('n', '<leader>gsh', gitsigns.stage_hunk, { desc = '[G]it [r]eset [h]unk' })
+        vim.keymap.set('v', '<leader>gs', function()
+          gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = '[G]it [s]tage selection' })
+
+        vim.keymap.set('n', '[g', function()
+          gitsigns.nav_hunk 'prev'
+        end, { desc = 'Previous Git hunk' })
+        vim.keymap.set('n', ']g', function()
+          gitsigns.nav_hunk 'next'
+        end, { desc = 'Next Git hunk' })
+
+        vim.keymap.set('v', '<leader>gh', gitsigns.select_hunk, { desc = 'Select [G]it [H]unk' })
       end,
     },
   },
@@ -389,7 +406,9 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
-        { '<leader>gl', group = 'b[l]ame', mode = { 'n', 'v' } },
+        { '<leader>gb', group = '[b]lame', mode = { 'n', 'v' } },
+        { '<leader>gr', group = '[r]eset', mode = { 'n' } },
+        { '<leader>gs', group = '[s]tage', mode = { 'n' } },
       },
     },
   },
@@ -475,6 +494,11 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
 
+      local utils = require 'telescope.utils'
+      local function get_current_dir()
+        return string.gsub(utils.buffer_dir(), 'oil://', '')
+      end
+
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -482,18 +506,24 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sf', function()
         builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden' } }
       end, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sF', function()
+        builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', get_current_dir() } }
+      end, { desc = '[S]earch [F]iles in current directory' })
       vim.keymap.set('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>sG', function()
+        builtin.live_grep { cwd = get_current_dir() }
+      end, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', function()
         builtin.buffers { sort_mru = true }
       end, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[G]it [B]ranches' })
-      vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = '[G]it [C]ommits' })
-      vim.keymap.set('n', '<leader>gs', builtin.git_stash, { desc = '[G]it [S]tash' })
+      vim.keymap.set('n', '<leader>gB', builtin.git_branches, { desc = '[G]it [B]ranches' })
+      vim.keymap.set('n', '<leader>gC', builtin.git_commits, { desc = '[G]it [C]ommits' })
+      vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = '[G]it [S]tash' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
