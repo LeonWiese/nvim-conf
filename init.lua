@@ -242,6 +242,18 @@ vim.api.nvim_create_autocmd('FileType', {
   command = 'setlocal iskeyword+=-',
 })
 
+-- Add ui5 filetypes
+vim.filetype.add {
+  pattern = {
+    ['.*.view.xml'] = 'ui5view.xml',
+    ['.*.fragment.xml'] = 'ui5view.xml',
+  },
+  filename = {
+    ['ui5.yaml'] = 'ui5.yaml',
+    ['manifest.json'] = 'ui5manifest.json',
+  },
+}
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -765,6 +777,28 @@ require('lazy').setup({
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
+      -- Custom config for sap ui5
+      require('lspconfig.configs').ui5 = {
+        default_config = {
+          cmd = {
+            'volta',
+            'run',
+            '--quiet',
+            '--node',
+            '20',
+            'node',
+            '--',
+            '/Users/l.wiese/Projects/JavaScript/ui5-language-assistant-2/packages/language-server/lib/src/server.js',
+            '--stdio',
+          },
+          filetypes = { 'ui5view.xml', 'ui5manifest.json', 'ui5.yaml' },
+          root_dir = function(fname)
+            return vim.fs.dirname(vim.fs.find('.git', { path = fname, upward = true })[1]) or vim.loop.os_homedir()
+          end,
+          settings = { UI5LanguageAssistant = { codeAssist = { experimental = true } } },
+        },
+      }
+
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -943,6 +977,10 @@ require('lazy').setup({
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      local handlers = {
+        ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
+        ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
+      }
       require('mason-lspconfig').setup {
         handlers = {
           function(server_name)
@@ -951,14 +989,13 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            server.handlers = {
-              ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
-              ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
-            }
+            server.handlers = handlers
             require('lspconfig')[server_name].setup(server)
           end,
         },
       }
+
+      require('lspconfig').ui5.setup { handlers = handlers }
     end,
   },
 
