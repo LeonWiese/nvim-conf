@@ -236,3 +236,19 @@ sudo pacman -S --noconfirm --needed gcc make git ripgrep fd unzip neovim
 ```
 </details>
 
+```bash
+# nvim as docker container
+nvim () {
+  local mountname=$(realpath "${1:-$PWD}")
+  local file=""
+  if [[ -f "$mountname" ]]; then
+    file=$(basename "$mountname")
+    mountname=$(dirname "$mountname")
+  fi
+
+  local directory=$(basename "$mountname")
+
+  docker run -it --rm -v "$mountname:/home/dev/$directory" -w "/home/dev/$directory" nvim-image nvim "$file"
+}
+```
+
