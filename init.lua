@@ -552,7 +552,7 @@ require('lazy').setup({
   },
 
   {
-    'local/betterf.nvim',
+    'jjshoots/betterf.nvim',
     opts = {
       color = '#A5E2FF',
       mappings = {
