@@ -615,12 +615,11 @@ require('lazy').setup({
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
       {
         'williamboman/mason.nvim',
-        version = '1.11.0',
         opts = {
           ensure_installed = { 'csharpier', 'netcoredbg' },
         },
       },
-      { 'williamboman/mason-lspconfig.nvim', version = '1.32.0' },
+      { 'williamboman/mason-lspconfig.nvim' },
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
