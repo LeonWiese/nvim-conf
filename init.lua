@@ -1012,6 +1012,9 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
+    dependencies = {
+      { 'williamboman/mason.nvim', opts = { ensure_installed = { 'yamlfmt', 'fixjson' } } },
+    },
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -1022,6 +1025,15 @@ require('lazy').setup({
         end,
         mode = '',
         desc = '[C]ode: [F]ormat buffer',
+      },
+      {
+        '<leader>tf',
+        function()
+          vim.g.disable_autoformat = not vim.g.disable_autoformat
+          print('Autoformat ' .. (vim.g.disable_autoformat and 'disabled' or 'enabled'))
+        end,
+        mode = '',
+        desc = '[T]oggle auto[f]ormat-on-save',
       },
     },
     config = function()
@@ -1054,11 +1066,13 @@ require('lazy').setup({
           --
           rust = { 'rustfmt' },
           -- You can use 'stop_after_first' to run the first available formatter from the list
-          javascript = { 'prettierd', 'prettier', stop_after_first = true },
-          typescript = { 'prettierd', 'prettier', stop_after_first = true },
+          javascript = { 'prettierd', 'prettier', 'eslint', stop_after_first = true },
+          typescript = { 'prettierd', 'prettier', 'eslint', stop_after_first = true },
           css = { 'prettierd', 'prettier', stop_after_first = true },
           htmlangular = { 'prettier' },
           html = { 'prettierd', 'prettier', stop_after_first = true },
+          yaml = { 'yamlfmt' },
+          json = { 'fixjson', 'prettierd', 'prettier' },
         },
       }
 
