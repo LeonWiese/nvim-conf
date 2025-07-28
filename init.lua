@@ -616,7 +616,7 @@ require('lazy').setup({
       {
         'williamboman/mason.nvim',
         opts = {
-          ensure_installed = { 'csharpier', 'netcoredbg' },
+          ensure_installed = { 'csharpier', 'netcoredbg', 'yamlfmt', 'fixjson' },
         },
       },
       { 'williamboman/mason-lspconfig.nvim' },
@@ -1013,7 +1013,7 @@ require('lazy').setup({
   { -- Autoformat
     'stevearc/conform.nvim',
     dependencies = {
-      { 'williamboman/mason.nvim', opts = { ensure_installed = { 'yamlfmt', 'fixjson' } } },
+      'williamboman/mason.nvim',
     },
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
