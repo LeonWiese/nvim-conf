@@ -1302,6 +1302,9 @@ require('lazy').setup({
     },
   },
 
+  -- Align text by some character
+  { 'tommcdo/vim-lion' },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
