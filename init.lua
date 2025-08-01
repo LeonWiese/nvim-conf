@@ -454,7 +454,6 @@ require('lazy').setup({
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
-    branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -537,14 +536,17 @@ require('lazy').setup({
         builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden' } }
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>sF', function()
-        builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', get_current_dir() } }
+        builtin.find_files {
+          find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', get_current_dir() },
+          prompt_title = 'Find Files in ' .. vim.fn.expand '%:p:h:t' .. '/',
+        }
       end, { desc = '[S]earch [F]iles in current directory' })
       vim.keymap.set('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sG', function()
-        builtin.live_grep { cwd = get_current_dir() }
-      end, { desc = '[S]earch by [G]rep' })
+        builtin.live_grep { cwd = get_current_dir(), prompt_title = 'Live Grep in ' .. vim.fn.expand '%:p:h:t' .. '/' }
+      end, { desc = '[S]earch by [G]rep in current directory' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -617,6 +619,7 @@ require('lazy').setup({
         'williamboman/mason.nvim',
         opts = {
           ensure_installed = { 'csharpier', 'netcoredbg', 'yamlfmt', 'fixjson' },
+          registries = { 'file:~/Projects/nvim/mason-registry' },
         },
       },
       { 'williamboman/mason-lspconfig.nvim' },
@@ -659,6 +662,14 @@ require('lazy').setup({
       -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
       -- and elegantly composed help section, `:help lsp-vs-treesitter`
 
+      -- Remove default LSP keymaps
+      vim.keymap.del('n', 'grn')
+      vim.keymap.del('n', 'gra')
+      vim.keymap.del('n', 'grr')
+      vim.keymap.del('n', 'gri')
+      vim.keymap.del('n', 'grt')
+      vim.keymap.del('i', '<C-S>')
+
       vim.keymap.set('n', 'K', function()
         vim.lsp.buf.hover { border = 'rounded' }
       end, { desc = 'Hover documentation' })
@@ -670,11 +681,6 @@ require('lazy').setup({
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
-          -- NOTE: Remember that Lua is a real programming language, and as such it is possible
-          -- to define small helper and utility functions so you don't have to repeat yourself.
-          --
-          -- In this case, we create a function that lets us more easily define mappings specific
-          -- for LSP related items. It sets the mode, buffer and description for us each time.
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
@@ -718,6 +724,10 @@ require('lazy').setup({
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          map('<C-S>', function()
+            vim.lsp.buf.signature_help { border = 'rounded' }
+          end, 'Signature help', 'i')
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
