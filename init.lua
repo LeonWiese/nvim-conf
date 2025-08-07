@@ -283,20 +283,27 @@ require('lazy').setup({
 
   {
     'stevearc/oil.nvim',
-    ---@module 'oil'
-    ---@type oil.SetupOpts
-    -- Optional dependencies
-    dependencies = { 'nvim-tree/nvim-web-devicons' }, -- use if you prefer nvim-web-devicons
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      {
+        'LeonWiese/oil-git.nvim',
+        opts = {
+          ignore_git_signs = true,
+        },
+      },
+    },
     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
     lazy = false,
-    config = function()
-      require('oil').setup {
-        view_options = {
-          show_hidden = true,
-        },
-      }
-      vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory with Oil' })
-    end,
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {
+      view_options = {
+        show_hidden = true,
+      },
+    },
+    keys = {
+      { '-', '<CMD>Oil<CR>', mode = 'n', desc = 'Open parent directory with Oil' },
+    },
   },
 
   -- NOTE: Plugins can also be added by using a table,
