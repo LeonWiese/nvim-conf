@@ -4,7 +4,6 @@ local M = {}
 --- @field shortcut? string
 --- @field desc string
 --- @field cmd function
---- @field _place number
 
 --- @type project-config.config[]
 local registered = {}
