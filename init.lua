@@ -300,6 +300,17 @@ require('lazy').setup({
       view_options = {
         show_hidden = true,
       },
+      keymaps = {
+        ['<leader>ga'] = {
+          callback = function()
+            local dir = require('oil').get_current_dir()
+            local file = require('oil').get_cursor_entry().name
+            vim.system { 'git', 'add', dir .. file }
+            require('oil-git').refresh()
+          end,
+          desc = '[G]it [A]dd file',
+        },
+      },
     },
     keys = {
       { '-', '<CMD>Oil<CR>', mode = 'n', desc = 'Open parent directory with Oil' },
@@ -1424,7 +1435,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  { import = 'custom.plugins' },
+  { import = 'plugins' },
 
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
