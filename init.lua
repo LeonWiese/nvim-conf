@@ -558,7 +558,7 @@ require('lazy').setup({
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>sF', function()
         builtin.find_files {
-          find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', get_current_dir() },
+          find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', '--no-ignore', get_current_dir() },
           prompt_title = 'Find Files in ' .. vim.fn.expand '%:p:h:t' .. '/',
         }
       end, { desc = '[S]earch [F]iles in current directory' })
