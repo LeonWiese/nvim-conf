@@ -242,6 +242,14 @@ vim.api.nvim_create_autocmd('FileType', {
   command = 'setlocal iskeyword+=-',
 })
 
+vim.api.nvim_create_user_command('Cppath', function()
+  local path = vim.fn.expand '%:p'
+  local root = vim.fn.getcwd()
+  path = string.gsub(path, root .. '/', '')
+  vim.fn.setreg('+', path)
+  vim.notify('Copied "' .. path .. '" to the clipboard!')
+end, {})
+
 -- Add ui5 filetypes
 vim.filetype.add {
   pattern = {
@@ -347,6 +355,9 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
         untracked = { text = '┆' },
+      },
+      preview_config = {
+        border = 'rounded',
       },
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'
@@ -988,6 +999,8 @@ require('lazy').setup({
           organize_imports_on_format = true,
           enable_import_completion = true,
         },
+
+        ['terraform-ls'] = {},
       }
 
       -- Ensure the servers and tools above are installed
