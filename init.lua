@@ -94,6 +94,7 @@ vim.g.maplocalleader = ' '
 
 -- Set the language. Before it was system default.
 vim.cmd 'language en_US.UTF-8'
+vim.opt.spelllang = { 'en_us', 'de_20' }
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -513,9 +514,6 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
-        -- { '<leader>gb', group = '[b]lame', mode = { 'n', 'v' } },
-        -- { '<leader>gr', group = '[r]eset', mode = { 'n' } },
-        -- { '<leader>gs', group = '[s]tage', mode = { 'n' } },
       },
     },
   },
