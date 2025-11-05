@@ -291,10 +291,12 @@ require('lazy').setup({
 
   {
     'stevearc/oil.nvim',
+    enabled = false,
     dependencies = {
       'nvim-tree/nvim-web-devicons',
       {
         'LeonWiese/oil-git.nvim',
+        enabled = false,
         opts = {
           ignore_git_signs = true,
         },
@@ -323,6 +325,49 @@ require('lazy').setup({
     keys = {
       { '-', '<CMD>Oil<CR>', mode = 'n', desc = 'Open parent directory with Oil' },
     },
+  },
+
+  {
+    'A7Lavinraj/fyler.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {
+      icon_provider = 'nvim_web_devicons',
+      mappings = {
+        ['q'] = 'CloseView',
+        ['<CR>'] = 'Select',
+        ['<C-t>'] = 'SelectTab',
+        ['<C-v>'] = 'SelectVSplit',
+        ['<C-x>'] = 'SelectSplit',
+        ['^'] = 'GotoParent',
+        ['='] = 'GotoCwd',
+        ['.'] = 'GotoNode',
+        ['#'] = 'CollapseAll',
+        ['-'] = 'CollapseNode',
+      },
+    },
+    keys = {
+      {
+        '-',
+        function()
+          require('fyler').open { kind = 'split_left_most' }
+        end,
+        mode = 'n',
+        desc = 'Open Fyler view at file',
+      },
+    },
+  },
+
+  {
+    'ramilito/winbar.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('winbar').setup {
+        icons = true,
+        buf_modified_symbol = '●',
+        background_color = require('darcula').config.colors.background,
+      }
+    end,
   },
 
   -- NOTE: Plugins can also be added by using a table,
@@ -362,20 +407,20 @@ require('lazy').setup({
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'
 
-        vim.keymap.set('n', '<leader>gbl', gitsigns.blame_line, { desc = 'Show [G]it [b]lame [l]ine' })
-        vim.keymap.set('n', '<leader>gbf', function()
+        -- vim.keymap.set('n', '<leader>gbl', gitsigns.blame_line, { desc = 'Show [G]it [b]lame [l]ine' })
+        vim.keymap.set('n', '<leader>gb', function()
           gitsigns.blame_line { full = true }
-        end, { desc = 'Show [G]it [b]lame line [f]ull' })
-        vim.keymap.set('n', '<leader>gbs', gitsigns.blame, { desc = 'Open [G]it [b]lame in [s]plit' })
+        end, { desc = 'Show [G]it [b]lame line' })
+        vim.keymap.set('n', '<leader>gB', gitsigns.blame, { desc = 'Open [G]it [b]lame in split' })
 
-        vim.keymap.set('n', '<leader>grb', gitsigns.reset_buffer, { desc = '[G]it [r]eset [b]uffer' })
-        vim.keymap.set('n', '<leader>grh', gitsigns.reset_hunk, { desc = '[G]it [r]eset [h]unk' })
+        vim.keymap.set('n', '<leader>gR', gitsigns.reset_buffer, { desc = '[G]it [r]eset buffer' })
+        vim.keymap.set('n', '<leader>gr', gitsigns.reset_hunk, { desc = '[G]it [r]eset hunk' })
         vim.keymap.set('v', '<leader>gr', function()
           gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = '[G]it [r]eset selection' })
 
-        vim.keymap.set('n', '<leader>gsb', gitsigns.stage_buffer, { desc = '[G]it [r]eset [b]uffer' })
-        vim.keymap.set('n', '<leader>gsh', gitsigns.stage_hunk, { desc = '[G]it [r]eset [h]unk' })
+        vim.keymap.set('n', '<leader>gS', gitsigns.stage_buffer, { desc = '[G]it [s]tage buffer' })
+        vim.keymap.set('n', '<leader>gs', gitsigns.stage_hunk, { desc = '[G]it [s]tage hunk' })
         vim.keymap.set('v', '<leader>gs', function()
           gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = '[G]it [s]tage selection' })
@@ -388,6 +433,8 @@ require('lazy').setup({
         end, { desc = 'Next Git hunk' })
 
         vim.keymap.set('v', '<leader>gh', gitsigns.select_hunk, { desc = 'Select [G]it [H]unk' })
+
+        vim.keymap.set('n', '<leader>gd', gitsigns.preview_hunk_inline, { desc = '[G]it [d]iff hunk inline' })
       end,
     },
   },
@@ -466,9 +513,9 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
-        { '<leader>gb', group = '[b]lame', mode = { 'n', 'v' } },
-        { '<leader>gr', group = '[r]eset', mode = { 'n' } },
-        { '<leader>gs', group = '[s]tage', mode = { 'n' } },
+        -- { '<leader>gb', group = '[b]lame', mode = { 'n', 'v' } },
+        -- { '<leader>gr', group = '[r]eset', mode = { 'n' } },
+        -- { '<leader>gs', group = '[s]tage', mode = { 'n' } },
       },
     },
   },
@@ -1298,10 +1345,11 @@ require('lazy').setup({
           theme = require('darcula').lualine,
           component_separators = '',
           section_separators = { left = '', right = '' },
+          globalstatus = true,
         },
         sections = {
           lualine_a = { { 'mode', separator = { left = ' ', right = '' }, right_padding = 2 } },
-          lualine_b = { 'branch', 'filename', 'diff' },
+          lualine_b = { 'branch', 'diff' },
           lualine_c = { 'diagnostics', 'searchcount', '%=' },
           lualine_x = { 'encoding', 'filetype' },
           lualine_y = { 'progress' },
