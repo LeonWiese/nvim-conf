@@ -9,7 +9,7 @@
   "cmp-path": { "branch": "main", "commit": "c642487086dbd9a93160e1679a1327be111cbc25" },
   "cmp_luasnip": { "branch": "master", "commit": "98d9cb5c2c38532bd9bdb481067b20fea8f32e90" },
   "conform.nvim": { "branch": "master", "commit": "973f3cb73887d510321653044791d7937c7ec0fa" },
-  "darcula.nvim": { "branch": "main", "commit": "b8651d6c7834d070ee5050e7991727848ce5461b" },
+  "darcula.nvim": { "branch": "main", "commit": "8ebd53f65c07ddae46047a2621dc488f6a747324" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "fidget.nvim": { "branch": "main", "commit": "4ec7bed6c86b671ddde03ca1b227343cfa3e65fa" },
   "fyler.nvim": { "branch": "main", "commit": "d6b855c275cb62eb825e4a89d27191eefba8ffa9" },

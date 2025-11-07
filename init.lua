@@ -349,6 +349,38 @@ require('lazy').setup({
         ['.'] = 'GotoNode',
         ['#'] = 'CollapseAll',
         ['-'] = 'CollapseNode',
+        ['<leader>ga'] = function()
+          local entry = require('fyler').current():cursor_node_entry()
+          if entry == nil then
+            return
+          end
+          vim.system { 'git', 'add', entry.path }
+          require('fyler').current():dispatch_refresh()
+        end,
+      },
+      icon = {
+        directory_collapsed = '',
+        directory_expanded = '',
+        directory_empty = '',
+      },
+      git_status = {
+        symbols = {
+          Modified = '~',
+          Deleted = '-',
+          Copied = '',
+          Renamed = '󰑕',
+        },
+      },
+      hooks = {
+        on_highlight = function(hl_groups)
+          require('darcula').apply_fyler(hl_groups)
+        end,
+      },
+      win = {
+        border = 'rounded',
+        kind_presets = {
+          split_left_most = { width = '0.2rel' },
+        },
       },
     },
     keys = {
