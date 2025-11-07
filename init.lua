@@ -93,7 +93,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set the language. Before it was system default.
-vim.cmd 'language en_US.UTF-8'
+vim.cmd.language 'en_US.UTF-8'
 vim.opt.spelllang = { 'en_us', 'de_20' }
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
