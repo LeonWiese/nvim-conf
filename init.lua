@@ -215,6 +215,11 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+vim.keymap.set('n', '<leader>tw', function()
+  vim.o.wrap = not vim.o.wrap
+  print('Word wrap ' .. (vim.o.wrap and 'enabled' or 'disabled'))
+end, { desc = '[T]oggle [W]ord wrap' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
