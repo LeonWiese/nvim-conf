@@ -216,8 +216,9 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 vim.keymap.set('n', '<leader>tw', function()
-  vim.o.wrap = not vim.o.wrap
-  print('Word wrap ' .. (vim.o.wrap and 'enabled' or 'disabled'))
+  vim.opt.wrap = not vim.opt.wrap:get()
+  ---@diagnostic disable-next-line: undefined-field
+  print('Word wrap ' .. (vim.opt.wrap:get() and 'enabled' or 'disabled'))
 end, { desc = '[T]oggle [W]ord wrap' })
 
 -- [[ Basic Autocommands ]]
