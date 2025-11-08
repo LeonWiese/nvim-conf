@@ -641,9 +641,13 @@ require('lazy').setup({
       pcall(telescope.load_extension, 'ui-select')
       pcall(telescope.load_extension, 'undo')
 
-      local utils = require 'telescope.utils'
       local function get_current_dir()
-        return string.gsub(utils.buffer_dir(), 'oil://', '')
+        local dir = vim.fn.expand '%:p:h'
+        if string.match(dir, 'fyler://') ~= nil then
+          return vim.fs.dirname(require('fyler').current():cursor_node_entry().path)
+        end
+
+        return string.gsub(dir, 'oil://', '')
       end
 
       -- See `:help telescope.builtin`
@@ -654,19 +658,21 @@ require('lazy').setup({
         builtin.find_files { find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden' } }
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>sF', function()
+        local dir = get_current_dir()
         builtin.find_files {
-          find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', '--no-ignore', get_current_dir() },
-          prompt_title = 'Find Files in ' .. vim.fn.expand '%:p:h:t' .. '/',
+          find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden', '--no-ignore', dir },
+          prompt_title = 'Find Files in ' .. vim.fs.basename(dir) .. '/',
         }
       end, { desc = '[S]earch [F]iles in current directory' })
       vim.keymap.set('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sG', function()
+        local dir = get_current_dir()
         builtin.live_grep {
-          cwd = get_current_dir(),
+          cwd = dir,
           additional_args = { '--no-ignore' },
-          prompt_title = 'Live Grep in ' .. vim.fn.expand '%:p:h:t' .. '/',
+          prompt_title = 'Live Grep in ' .. vim.fs.basename(dir) .. '/',
         }
       end, { desc = '[S]earch by [G]rep in current directory' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
