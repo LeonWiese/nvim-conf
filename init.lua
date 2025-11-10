@@ -252,7 +252,7 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_user_command('Cppath', function()
   local path = vim.fn.expand '%:p'
   local root = vim.fn.getcwd()
-  path = string.gsub(path, root .. '/', '')
+  path = path:gsub(root .. '/', '')
   vim.fn.setreg('+', path)
   vim.notify('Copied "' .. path .. '" to the clipboard!')
 end, {})
@@ -643,11 +643,11 @@ require('lazy').setup({
 
       local function get_current_dir()
         local dir = vim.fn.expand '%:p:h'
-        if string.match(dir, 'fyler://') ~= nil then
+        if dir:match 'fyler://' then
           return vim.fs.dirname(require('fyler').current():cursor_node_entry().path)
         end
 
-        return string.gsub(dir, 'oil://', '')
+        return dir:gsub('oil://', '')
       end
 
       -- See `:help telescope.builtin`
