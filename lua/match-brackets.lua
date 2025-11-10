@@ -40,11 +40,11 @@ local function goto_next_unmatched(char, closing_char)
       local start_col = current_row == cursor_row and (cursor_col + 2) or 1
 
       for current_col = start_col, #line do
-        local char = line:sub(current_col, current_col)
+        local current_char = line:sub(current_col, current_col)
 
-        if char == closing_char then
+        if current_char == closing_char then
           bracket_count = bracket_count + 1
-        elseif char == char then
+        elseif current_char == char then
           if bracket_count == 0 then
             vim.api.nvim_win_set_cursor(0, { current_row, current_col - 1 })
             return
