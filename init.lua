@@ -907,6 +907,7 @@ require('lazy').setup({
         vim.diagnostic.config {
           signs = { text = diagnostic_signs },
           float = { border = 'rounded' },
+          virtual_lines = true,
         }
       end
 
@@ -1147,6 +1148,21 @@ require('lazy').setup({
         commands = { enable = true },
       }
     end,
+  },
+
+  {
+    'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
+    opts = {},
+    keys = {
+      {
+        '<leader>td',
+        function()
+          vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
+        end,
+        mode = 'n',
+        desc = '[T]oggle [D]iagnostics',
+      },
+    },
   },
 
   { -- Autoformat
