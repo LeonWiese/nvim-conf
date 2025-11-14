@@ -1158,6 +1158,7 @@ require('lazy').setup({
         '<leader>td',
         function()
           vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
+          print('Virtual diagnostic lines ' .. (vim.diagnostic.config().virtual_lines and 'enabled' or 'disabled'))
         end,
         mode = 'n',
         desc = '[T]oggle [D]iagnostics',
