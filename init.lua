@@ -683,9 +683,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader><leader>', function()
         builtin.buffers { sort_mru = true }
       end, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader>gB', builtin.git_branches, { desc = '[G]it [B]ranches' })
-      vim.keymap.set('n', '<leader>gC', builtin.git_commits, { desc = '[G]it [C]ommits' })
-      vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = '[G]it [S]tash' })
+      vim.keymap.set('n', '<leader>sb', builtin.git_branches, { desc = '[S]earch Git [B]ranches' })
+      vim.keymap.set('n', '<leader>sc', builtin.git_commits, { desc = '[S]earch Git [C]ommits' })
+      vim.keymap.set('n', '<leader>sS', builtin.git_stash, { desc = '[S]earch Git [S]tash' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
