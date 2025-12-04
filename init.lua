@@ -426,6 +426,7 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     opts = {
       signs = {
         add = { text = '┃' },
@@ -448,6 +449,7 @@ require('lazy').setup({
       },
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'
+        local ts_repeat_move = require 'nvim-treesitter.textobjects.repeatable_move'
 
         -- vim.keymap.set('n', '<leader>gbl', gitsigns.blame_line, { desc = 'Show [G]it [b]lame [l]ine' })
         vim.keymap.set('n', '<leader>gb', function()
@@ -467,12 +469,14 @@ require('lazy').setup({
           gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = '[G]it [s]tage selection' })
 
-        vim.keymap.set('n', '[g', function()
-          gitsigns.nav_hunk 'prev'
-        end, { desc = 'Previous Git hunk' })
-        vim.keymap.set('n', ']g', function()
+        local next_hunk, prev_hunk = ts_repeat_move.make_repeatable_move_pair(function()
           gitsigns.nav_hunk 'next'
-        end, { desc = 'Next Git hunk' })
+        end, function()
+          gitsigns.nav_hunk 'prev'
+        end)
+
+        vim.keymap.set('n', ']g', next_hunk, { desc = 'Next Git hunk' })
+        vim.keymap.set('n', '[g', prev_hunk, { desc = 'Previous Git hunk' })
 
         vim.keymap.set('v', '<leader>gh', gitsigns.select_hunk, { desc = 'Select [G]it [H]unk' })
 
@@ -548,13 +552,13 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-        { '<leader>d', group = '[D]ebugger' },
-        { '<leader>r', group = '[R]ename' },
-        { '<leader>s', group = '[S]earch' },
-        { '<leader>w', group = '[W]orkspace' },
-        { '<leader>t', group = '[T]oggle' },
-        { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
+        { '<leader>c', group = 'Code', mode = { 'n', 'x' } },
+        { '<leader>d', group = 'Debugger' },
+        { '<leader>r', group = 'Rename' },
+        { '<leader>s', group = 'Search' },
+        { '<leader>w', group = 'Workspace' },
+        { '<leader>t', group = 'Toggle' },
+        { '<leader>g', group = 'Git', mode = { 'n', 'v' } },
       },
     },
   },
@@ -808,6 +812,11 @@ require('lazy').setup({
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
+          -- Remove keymaps set by LSP
+          pcall(vim.keymap.del, { 'n', 'x', 'o' }, '[[', { buffer = event.buf })
+          pcall(vim.keymap.del, { 'n', 'x', 'o' }, ']]', { buffer = event.buf })
+
+          -- Set new keymaps
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
@@ -1483,46 +1492,21 @@ require('lazy').setup({
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- local statusline = require 'mini.statusline'
+      -- -- set use_icons to true if you have a Nerd Font
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
+      --
+      -- -- You can configure sections in the statusline by overriding their
+      -- -- default behavior. For example, here we set the section for
+      -- -- cursor location to LINE:COLUMN
+      -- ---@diagnostic disable-next-line: duplicate-set-field
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
-  },
-  { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp', 'http' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
   {
