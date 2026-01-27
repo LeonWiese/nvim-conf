@@ -12,7 +12,7 @@
   "darcula.nvim": { "branch": "main", "commit": "8ebd53f65c07ddae46047a2621dc488f6a747324" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "fidget.nvim": { "branch": "main", "commit": "4ec7bed6c86b671ddde03ca1b227343cfa3e65fa" },
-  "fyler.nvim": { "branch": "main", "commit": "d6b855c275cb62eb825e4a89d27191eefba8ffa9" },
+  "fyler.nvim": { "branch": "main", "commit": "15b4b1fae0b967820e0000692f17f7988bc4ebc9" },
   "gitsigns.nvim": { "branch": "main", "commit": "8270378ab83540b03d09c0194ba3e208f9d0cb72" },
   "hererocks": { "branch": "master", "commit": "f4cc0b16619b9d9d59c92636c5b5e7c06dc7c082" },
   "indentmini.nvim": { "branch": "main", "commit": "0dc4bc2b3fc763420793e748b672292bc43ee722" },

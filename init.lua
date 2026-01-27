@@ -192,6 +192,8 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+local severity_diagnostic_symbols = { Error = '', Warn = '', Info = '', Hint = '' }
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -341,49 +343,68 @@ require('lazy').setup({
     'A7Lavinraj/fyler.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     opts = {
-      icon_provider = 'nvim_web_devicons',
-      mappings = {
-        ['q'] = 'CloseView',
-        ['<CR>'] = 'Select',
-        ['<C-t>'] = 'SelectTab',
-        ['<C-v>'] = 'SelectVSplit',
-        ['<C-x>'] = 'SelectSplit',
-        ['^'] = 'GotoParent',
-        ['='] = 'GotoCwd',
-        ['.'] = 'GotoNode',
-        ['#'] = 'CollapseAll',
-        ['-'] = 'CollapseNode',
-        ['<leader>ga'] = function()
-          local entry = require('fyler').current():cursor_node_entry()
-          if entry == nil then
-            return
-          end
-          vim.system { 'git', 'add', entry.path }
-          require('fyler').current():dispatch_refresh()
-        end,
-      },
-      icon = {
-        directory_collapsed = '',
-        directory_expanded = '',
-        directory_empty = '',
-      },
-      git_status = {
-        symbols = {
-          Modified = '~',
-          Deleted = '-',
-          Copied = '',
-          Renamed = '󰑕',
-        },
-      },
       hooks = {
         on_highlight = function(hl_groups)
           require('darcula').apply_fyler(hl_groups)
         end,
       },
-      win = {
-        border = 'rounded',
-        kind_presets = {
-          split_left_most = { width = '0.2rel' },
+      integrations = {
+        icon = 'nvim_web_devicons',
+      },
+      views = {
+        finder = {
+          mappings = {
+            ['q'] = 'CloseView',
+            ['<CR>'] = 'Select',
+            ['<C-t>'] = 'SelectTab',
+            ['<C-v>'] = 'SelectVSplit',
+            ['<C-x>'] = 'SelectSplit',
+            ['^'] = 'GotoParent',
+            ['='] = 'GotoCwd',
+            ['.'] = 'GotoNode',
+            ['#'] = 'CollapseAll',
+            ['-'] = 'CollapseNode',
+            ['<leader>ga'] = function()
+              local instance = require('fyler.views.finder').instance()
+              local entry = instance:cursor_node_entry()
+              if entry == nil then
+                return
+              end
+              vim.system { 'git', 'add', entry.path }
+              instance:dispatch_refresh()
+            end,
+          },
+          win = {
+            border = 'rounded',
+            kinds = {
+              split_left_most = { width = '18%' },
+            },
+            win_opts = {
+              number = true,
+              relativenumber = true,
+              cursorline = true,
+            },
+          },
+          columns_order = { 'git', 'diagnostic', 'size', 'permission' },
+          icon = {
+            directory_collapsed = '',
+            directory_expanded = '',
+            directory_empty = '',
+          },
+          columns = {
+            git = {
+              symbols = {
+                Added = '+',
+                Modified = '~',
+                Deleted = '-',
+                Copied = '',
+                Renamed = '󰑕',
+              },
+            },
+            diagnostic = {
+              symbols = severity_diagnostic_symbols,
+            },
+          },
         },
       },
     },
@@ -391,7 +412,11 @@ require('lazy').setup({
       {
         '-',
         function()
-          require('fyler').open { kind = 'split_left_most' }
+          if require('fyler.views.finder').instance():isopen() then
+            require('fyler').focus()
+          else
+            require('fyler').open { kind = 'split_left_most' }
+          end
         end,
         mode = 'n',
         desc = 'Open Fyler view at file',
@@ -408,6 +433,7 @@ require('lazy').setup({
         icons = true,
         buf_modified_symbol = '●',
         background_color = require('darcula').config.colors.background,
+        filetype_exclude = { 'fyler', 'dashboard', 'neogitstatus' },
       }
     end,
   },
@@ -648,7 +674,8 @@ require('lazy').setup({
       local function get_current_dir()
         local dir = vim.fn.expand '%:p:h'
         if dir:match 'fyler://' then
-          return vim.fs.dirname(require('fyler').current():cursor_node_entry().path)
+          local path = require('fyler.views.finder').instance():cursor_node_entry().path
+          return vim.fs.dirname(path)
         end
 
         return dir:gsub('oil://', '')
@@ -908,10 +935,9 @@ require('lazy').setup({
 
       -- Change diagnostic symbols in the sign column (gutter)
       if vim.g.have_nerd_font then
-        local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
         local diagnostic_signs = {}
-        for type, icon in pairs(signs) do
-          diagnostic_signs[vim.diagnostic.severity[type]] = icon
+        for type, icon in pairs(severity_diagnostic_symbols) do
+          diagnostic_signs[vim.diagnostic.severity[type:upper()]] = icon
         end
         vim.diagnostic.config {
           signs = { text = diagnostic_signs },
