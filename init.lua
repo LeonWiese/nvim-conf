@@ -584,6 +584,7 @@ require('lazy').setup({
         { '<leader>d', group = 'Debugger' },
         { '<leader>r', group = 'Rename' },
         { '<leader>s', group = 'Search' },
+        { '<leader>sq', group = '[S]earch [Q]uickfix' },
         { '<leader>w', group = 'Workspace' },
         { '<leader>t', group = 'Toggle' },
         { '<leader>g', group = 'Git', mode = { 'n', 'v' } },
@@ -744,6 +745,40 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
 
       vim.keymap.set('n', '<leader>wl', require('project-config').show_list, { desc = '[W]orkspace [L]ist' })
+
+      -- search in quickfix list
+      function GetQfPaths()
+        local qflist = vim.fn.getqflist()
+        local paths = {}
+        local seen = {}
+
+        for _, item in ipairs(qflist) do
+          local path = vim.fn.bufname(item.bufnr)
+          if path ~= '' and not seen[path] then
+            seen[path] = true
+            table.insert(paths, path)
+          end
+        end
+
+        return paths
+      end
+
+      vim.keymap.set('n', '<leader>sqf', function()
+        local paths = GetQfPaths()
+        builtin.find_files {
+          find_command = { 'rg', '--files', '--hidden', '--no-ignore' },
+          search_dirs = paths,
+          prompt_title = 'Find Quickfix files',
+        }
+      end, { desc = 'Search files in Quickfix list' })
+
+      vim.keymap.set('n', '<leader>sqg', function()
+        local paths = GetQfPaths()
+        builtin.live_grep {
+          search_dirs = paths,
+          prompt_title = 'Live Grep in Quickfix list',
+        }
+      end, { desc = 'Live Grep in Quickfix list' })
     end,
   },
 
