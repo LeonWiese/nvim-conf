@@ -1215,11 +1215,9 @@ require('lazy').setup({
     'MysticalDevil/inlay-hints.nvim',
     event = 'LspAttach',
     dependencies = { 'neovim/nvim-lspconfig' },
-    config = function()
-      require('inlay-hints').setup {
-        commands = { enable = true },
-      }
-    end,
+    opts = {
+      commands = { enable = true },
+    },
   },
 
   {
@@ -1229,8 +1227,9 @@ require('lazy').setup({
       {
         '<leader>td',
         function()
-          vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
-          print('Virtual diagnostic lines ' .. (vim.diagnostic.config().virtual_lines and 'enabled' or 'disabled'))
+          local new_value = not vim.diagnostic.config().virtual_lines
+          vim.diagnostic.config { virtual_lines = new_value }
+          print('Virtual diagnostic lines ' .. (new_value and 'enabled' or 'disabled'))
         end,
         mode = 'n',
         desc = '[T]oggle [D]iagnostics',
