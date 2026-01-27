@@ -285,6 +285,8 @@ vim.opt.rtp:prepend(lazypath)
 
 -- go to unmatched [[ and ]]
 require('match-brackets').setup()
+-- better backward and forward in jumplist
+require('better-jump').setup()
 
 -- [[ Configure and install plugins ]]
 --
