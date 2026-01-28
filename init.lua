@@ -1456,7 +1456,15 @@ require('lazy').setup({
   },
 
   -- Automatic add close bracket pairs
-  { 'm4xshen/autoclose.nvim', opts = {} },
+  {
+    'm4xshen/autoclose.nvim',
+    opts = {
+      options = {
+        pair_spaces = true,
+        disable_when_touch = true,
+      },
+    },
+  },
 
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
