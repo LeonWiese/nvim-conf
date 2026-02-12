@@ -5,7 +5,7 @@ return { -- Highlight, edit, and navigate code
   },
   build = ':TSUpdate',
   config = function()
-    require('nvim-treesitter.config').setup {
+    require('nvim-treesitter.configs').setup {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp', 'http' },
       ignore_install = {},
       sync_install = false,
@@ -47,7 +47,7 @@ return { -- Highlight, edit, and navigate code
             ['ip'] = { query = '@parameter.inner', desc = 'parameter' },
             ['aB'] = { query = '@block.outer', desc = 'block' },
             ['iB'] = { query = '@block.inner', desc = 'block' },
-            ['S'] = { query = '@local.scope', query_group = 'locals', desc = 'Scope' },
+            ['gS'] = { query = '@local.scope', query_group = 'locals', desc = 'Scope' },
           },
         },
         move = {
