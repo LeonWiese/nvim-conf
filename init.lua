@@ -516,13 +516,6 @@ require('lazy').setup({
     },
   },
 
-  {
-    'sindrets/diffview.nvim',
-    opts = {
-      enhanced_diff_hl = true,
-    },
-  },
-
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
