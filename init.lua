@@ -220,7 +220,7 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 vim.keymap.set('n', '<leader>tw', function()
   vim.opt.wrap = not vim.opt.wrap:get()
   ---@diagnostic disable-next-line: undefined-field
-  print('Word wrap ' .. (vim.opt.wrap:get() and 'enabled' or 'disabled'))
+  vim.notify('Word wrap ' .. (vim.opt.wrap:get() and 'enabled' or 'disabled'))
 end, { desc = '[T]oggle [W]ord wrap' })
 
 -- [[ Basic Autocommands ]]
@@ -237,18 +237,21 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Add htmlangular as filetype
-vim.cmd 'runtime! ftplugin/html.vim!'
+-- vim.cmd 'runtime! ftplugin/html.vim!'
 vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
   desc = 'Set commentstring of htmlangular',
   pattern = '*.component.html',
   command = 'setlocal commentstring=<!--\\ %s\\ -->',
 })
 
--- Add css keywords to html
+-- Change keyword boundaries
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'html,htmlangular,css',
   command = 'setlocal iskeyword+=-',
+})
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  command = 'setlocal wrap | setlocal noea',
 })
 
 vim.api.nvim_create_user_command('Cppath', function()
@@ -1221,7 +1224,7 @@ require('lazy').setup({
         function()
           local new_value = not vim.diagnostic.config().virtual_lines
           vim.diagnostic.config { virtual_lines = new_value }
-          print('Virtual diagnostic lines ' .. (new_value and 'enabled' or 'disabled'))
+          vim.notify('Virtual diagnostic lines ' .. (new_value and 'enabled' or 'disabled'))
         end,
         mode = 'n',
         desc = '[T]oggle [D]iagnostics',
@@ -1249,7 +1252,7 @@ require('lazy').setup({
         '<leader>tf',
         function()
           vim.g.disable_autoformat = not vim.g.disable_autoformat
-          print('Autoformat ' .. (vim.g.disable_autoformat and 'disabled' or 'enabled'))
+          vim.notify('Autoformat ' .. (vim.g.disable_autoformat and 'disabled' or 'enabled'))
         end,
         mode = '',
         desc = '[T]oggle auto[f]ormat-on-save',
