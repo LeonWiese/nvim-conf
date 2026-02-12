@@ -778,17 +778,6 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'jjshoots/betterf.nvim',
-    opts = {
-      color = '#A5E2FF',
-      mappings = {
-        '<leader>f',
-        '<leader>F',
-      },
-    },
-  },
-
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
